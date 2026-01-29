@@ -1,6 +1,68 @@
-# GitHub Actions Demo Repository - Tag 3
+# 🚀 GitHub Actions Demo - Tag 3
 
-Dieses Repository enthält Demo-Code für den GitHub Actions Kurs (Tag 3).
+Willkommen zum **GitHub Actions Training (Tag 3)**!
+Dieses Repository enthält Beispiel-Code und Übungsaufgaben zum Lernen von CI/CD.
+
+---
+
+## 📖 👉 **[ZU DEN ÜBUNGSAUFGABEN (START HIER!)](ÜBUNG-Teilnehmer.md)** 👈
+
+---
+
+## 📚 Was ist das?
+
+Dieses Repository ist Teil des **CloudHelden GitHub Actions Trainings**.
+Es zeigt praktische Beispiele für:
+
+- ✅ **Node.js CI/CD** (npm, testing, build)
+- ✅ **Java CI/CD** (Maven, testing, artifacts)
+- ✅ **Docker Build** (Multi-Stage, GHCR Push)
+- ✅ **Caching** (schnellere Builds)
+- ✅ **Artifacts** (Build-Ergebnisse speichern)
+
+---
+
+## 🎯 Schnellstart für Teilnehmer
+
+### ⚡ Option 1: Forken (EINFACHSTE Methode - 2 Minuten)
+
+1. **Klicke oben rechts auf "Fork"**
+2. Wähle deinen Account
+3. Warte 10 Sekunden
+4. **Fertig!** Workflows laufen automatisch
+5. **Öffne:** [ÜBUNG-Teilnehmer.md](ÜBUNG-Teilnehmer.md) und starte mit Level 1
+
+### Option 2: Als Template nutzen
+
+1. Klicke auf **"Use this template"** (grüner Button, falls verfügbar)
+2. Erstelle dein eigenes Repository
+3. Clone es lokal: `git clone https://github.com/DEIN-USERNAME/REPO-NAME.git`
+
+---
+
+## 🏆 Übungsaufgaben
+
+Die Übung hat **4 Level**:
+
+| Level | Thema | Dauer | Schwierigkeit |
+|-------|-------|-------|---------------|
+| **Level 1** | Basis-Workflow erstellen | 30 Min | 🟢 Pflicht |
+| **Level 2** | Caching hinzufügen | 20 Min | 🟢 Pflicht |
+| **Level 3** | Artifacts & Matrix | 25 Min | 🟡 Empfohlen |
+| **Level 4** | Docker Build | 20 Min | 🔵 Bonus |
+
+**👉 [Zu den Übungsaufgaben](ÜBUNG-Teilnehmer.md)**
+
+---
+
+## 🔧 Voraussetzungen
+
+- ✅ GitHub Account (kostenlos)
+- ✅ Git installiert (oder GitHub Desktop)
+- ✅ Code-Editor (VS Code empfohlen)
+- ⚠️ Node.js/Java (nur für lokales Testen, optional)
+
+**Tipp:** Du musst nichts lokal installieren! Alles läuft in GitHub Actions.
 
 ## 📁 Struktur
 
@@ -157,40 +219,37 @@ Füge Badge in README ein:
 - Artifacts Download
 - Job-Übersicht
 
-## 🐛 Troubleshooting
+## 🆘 Hilfe & Troubleshooting
 
-### npm ci schlägt fehl
+### ❌ Workflows laufen nicht?
 
-```bash
-# package-lock.json fehlt
-npm install
-git add package-lock.json
-git commit -m "chore: add lockfile"
-git push
-```
+**Check 1:** Actions aktiviert?
+- Gehe zu: **Settings** → **Actions** → **General**
+- Wähle: "Allow all actions"
+- Permissions: "Read and write"
 
-### Maven Tests schlagen fehl
+**Check 2:** Branch heißt `main`?
+- Workflows triggern auf `main` Branch
+- Falls du `master` hast → Branch umbenennen
 
-```bash
-# Lokal testen
-cd backend
-mvn clean test
-# Fehler fixen, dann pushen
-```
+**Check 3:** Workflows manuell starten
+- Gehe zu **Actions** Tab
+- Wähle einen Workflow (links)
+- Klicke **"Run workflow"** (rechts)
 
-### Docker Build zu langsam
+### ❌ Workflows schlagen fehl?
 
-- ✅ Bereits optimiert: Alpine Images
-- ✅ Multi-Stage Build
-- ✅ Layer Caching
-- ✅ .dockerignore
+1. Öffne **Actions** Tab
+2. Klicke auf den roten Workflow-Run
+3. Klicke auf den roten Step
+4. Lies die Fehlermeldung
+5. Frage deinen Dozenten oder schaue in die Logs
 
-### Workflows laufen nicht
+### 💡 Weitere Hilfe
 
-1. Check: Actions aktiviert?
-2. Check: YAML-Syntax korrekt? (`yamllint`)
-3. Check: .github/workflows/ Ordner?
-4. Check: Branch korrekt? (main/master)
+- Frage deinen Dozenten
+- Schaue in die Workflow-Logs (Actions Tab)
+- Erstelle ein Issue in diesem Repository
 
 ## 📚 Ressourcen
 
@@ -198,25 +257,45 @@ mvn clean test
 - [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
 - [Maven Guide](https://maven.apache.org/guides/)
 
-## 🎓 Lernziele
+## 🎓 Was du lernen wirst
 
-Nach diesem Projekt kannst du:
+Nach diesem Training kannst du:
 
-- ✅ Workflows für Node.js und Java erstellen
-- ✅ Caching nutzen (60%+ schneller!)
+- ✅ Eigene GitHub Actions Workflows erstellen
+- ✅ Node.js und Java Projekte automatisch bauen
+- ✅ Tests automatisch ausführen
+- ✅ Caching nutzen (bis zu 70% schneller!)
 - ✅ Docker Images bauen und pushen
-- ✅ Matrix Builds mit mehreren Versionen
-- ✅ Artifacts zwischen Jobs übergeben
-- ✅ GitHub Container Registry nutzen
-
-## 🤝 Contributing
-
-Dies ist ein Lern-Repository. Feel free to fork & experimentieren!
-
-## 📝 License
-
-MIT
+- ✅ Artifacts hochladen und nutzen
+- ✅ Matrix Builds (mehrere Versionen parallel)
 
 ---
 
-**Happy CI/CD Learning! 🚀**
+## 🏆 Erfolgs-Checks
+
+Du bist fertig, wenn:
+
+- [ ] Du hast das Repository geforkt
+- [ ] Alle Workflows laufen (grüne Häkchen ✓)
+- [ ] Du hast Level 1 & 2 abgeschlossen
+- [ ] Du verstehst wie Caching funktioniert
+- [ ] Du kannst eigene Workflows schreiben
+
+---
+
+## 📝 Lizenz
+
+MIT License - Frei verwendbar für Lernzwecke
+
+---
+
+## 👨‍🏫 Erstellt von
+
+**CloudHelden** - GitHub Actions Training
+Tag 3: Workflows & Build-Automatisierung
+
+---
+
+**Viel Erfolg! 🎉**
+
+**👉 [Jetzt mit den Übungen starten!](ÜBUNG-Teilnehmer.md)** 👈
