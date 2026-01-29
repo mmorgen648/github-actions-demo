@@ -10,7 +10,7 @@ WORKDIR /app
 
 # Dependencies installieren (Layer Caching!)
 COPY frontend/package*.json ./
-RUN npm ci --only=production
+RUN npm install --production
 
 # Code kopieren
 COPY frontend/ .

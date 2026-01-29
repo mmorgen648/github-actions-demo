@@ -9,7 +9,10 @@
     "build": "echo 'Frontend build complete ✓'",
     "lint": "echo 'Linting complete ✓'"
   },
-  "keywords": ["github-actions", "demo"],
+  "keywords": [
+    "github-actions",
+    "demo"
+  ],
   "author": "CloudHelden",
   "license": "MIT",
   "dependencies": {
