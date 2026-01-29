@@ -1,0 +1,49 @@
+# Node.js
+node_modules
+npm-debug.log
+.npm
+
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+*.md
+README.md
+docs/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+dist
+build
+coverage
+
+# Java
+target
+*.class
+*.jar
+*.war
+
+# Logs
+logs
+*.log
+
+# Test
+test
+*.test.js
+__tests__

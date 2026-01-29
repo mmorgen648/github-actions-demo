@@ -1,0 +1,383 @@
+# Demo 3: Java Build Workflow (Maven)
+# Datei: .github/workflows/java-build.yml
+
+name: Java CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # Job 1: Build mit Maven
+  build-maven:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'  # Automatisches Maven-Caching!
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Run Tests
+        run: mvn test
+
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-jar
+          path: target/*.jar
+          retention-days: 7
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/surefire-reports/
+
+  # Job 2: Build mit Gradle (Alternative)
+  build-gradle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'  # Automatisches Gradle-Caching!
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Run Tests
+        run: ./gradlew test
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-jar
+          path: build/libs/*.jar
+
+  # Job 3: Matrix Strategy - Mehrere Java-Versionen
+  test-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [11, 17, 21]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Tests on Java ${{ matrix.java-version }}
+        run: mvn test
+
+      - name: Display Java Version
+        run: java -version
+
+# BEISPIEL pom.xml (Maven):
+# ────────────────────────────────────────
+# <?xml version="1.0" encoding="UTF-8"?>
+# <project xmlns="http://maven.apache.org/POM/4.0.0"
+#          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+#          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+#                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
+#     <modelVersion>4.0.0</modelVersion>
+#
+#     <groupId>com.example</groupId>
+#     <artifactId>demo-app</artifactId>
+#     <version>1.0.0</version>
+#     <packaging>jar</packaging>
+#
+#     <properties>
+#         <maven.compiler.source>17</maven.compiler.source>
+#         <maven.compiler.target>17</maven.compiler.target>
+#         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+#     </properties>
+#
+#     <dependencies>
+#         <!-- JUnit für Tests -->
+#         <dependency>
+#             <groupId>org.junit.jupiter</groupId>
+#             <artifactId>junit-jupiter</artifactId>
+#             <version>5.10.0</version>
+#             <scope>test</scope>
+#         </dependency>
+#     </dependencies>
+#
+#     <build>
+#         <plugins>
+#             <plugin>
+#                 <groupId>org.apache.maven.plugins</groupId>
+#                 <artifactId>maven-compiler-plugin</artifactId>
+#                 <version>3.11.0</version>
+#             </plugin>
+#             <plugin>
+#                 <groupId>org.apache.maven.plugins</groupId>
+#                 <artifactId>maven-surefire-plugin</artifactId>
+#                 <version>3.1.2</version>
+#             </plugin>
+#         </plugins>
+#     </build>
+# </project>
+
+# BEISPIEL build.gradle (Gradle):
+# ────────────────────────────────────────
+# plugins {
+#     id 'java'
+#     id 'application'
+# }
+#
+# group = 'com.example'
+# version = '1.0.0'
+# sourceCompatibility = '17'
+#
+# repositories {
+#     mavenCentral()
+# }
+#
+# dependencies {
+#     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+# }
+#
+# test {
+#     useJUnitPlatform()
+# }
+#
+# application {
+#     mainClass = 'com.example.Main'
+# }
+
+# BEISPIEL PROJEKT-STRUKTUR:
+# project/
+# ├── .github/
+# │   └── workflows/
+# │       └── java-build.yml
+# ├── src/
+# │   ├── main/
+# │   │   └── java/
+# │   │       └── com/
+# │   │           └── example/
+# │   │               └── Main.java
+# │   └── test/
+# │       └── java/
+# │           └── com/
+# │               └── example/
+# │                   └── MainTest.java
+# ├── pom.xml (oder build.gradle)
+# └── README.md
+
+# BEISPIEL Main.java:
+# ────────────────────────────────────────
+# package com.example;
+#
+# public class Main {
+#     public static void main(String[] args) {
+#         System.out.println("Hello from Java!");
+#     }
+#
+#     public static String greet(String name) {
+#         return "Hello, " + name + "!";
+#     }
+# }
+
+# BEISPIEL MainTest.java:
+# ────────────────────────────────────────
+# package com.example;
+#
+# import org.junit.jupiter.api.Test;
+# import static org.junit.jupiter.api.Assertions.*;
+#
+# class MainTest {
+#     @Test
+#     void testGreet() {
+#         String result = Main.greet("World");
+#         assertEquals("Hello, World!", result);
+#     }
+# }
+
+# ERKLÄRUNGEN FÜR DOZENTEN:
+#
+# 1. Maven vs. Gradle:
+#    - Maven: XML-basiert (pom.xml), weit verbreitet
+#    - Gradle: Groovy/Kotlin-basiert (build.gradle), moderner
+#    - Beide werden von GitHub Actions unterstützt
+#
+# 2. Java Distributions:
+#    - temurin: Eclipse Adoptium (empfohlen, OpenJDK)
+#    - zulu: Azul Zulu (OpenJDK)
+#    - adopt: AdoptOpenJDK (deprecated)
+#    - oracle: Oracle JDK (Lizenz beachten!)
+#
+# 3. Maven Commands:
+#    - mvn clean: Löscht target/ Ordner
+#    - mvn compile: Kompiliert Source Code
+#    - mvn test: Führt Tests aus
+#    - mvn package: Erstellt JAR/WAR
+#    - mvn install: Installiert in lokales Repository
+#    - mvn clean package: Alles neu bauen
+#
+# 4. Gradle Commands:
+#    - ./gradlew build: Kompilieren + Tests + JAR
+#    - ./gradlew test: Nur Tests
+#    - ./gradlew clean: Cleanup
+#    - ./gradlew assemble: Build ohne Tests
+#
+# 5. Caching:
+#    - Maven: ~/.m2/repository
+#    - Gradle: ~/.gradle/caches
+#    - Automatisch mit cache: 'maven' oder cache: 'gradle'
+#
+# 6. Java-Versionen:
+#    - Java 11: LTS (Long Term Support)
+#    - Java 17: LTS (aktuell empfohlen)
+#    - Java 21: LTS (neueste)
+#
+# 7. JAR-Files:
+#    - Maven: target/*.jar
+#    - Gradle: build/libs/*.jar
+#    - Können als Artifacts hochgeladen werden
+
+# HÄUFIGE FEHLER:
+#
+# 1. "Could not find or load main class"
+#    → pom.xml: mainClass nicht definiert
+#    → Lösung: maven-jar-plugin konfigurieren
+#
+# 2. "The JAVA_HOME environment variable is not defined"
+#    → Lösung: setup-java@v4 verwenden (setzt automatisch)
+#
+# 3. "Permission denied: ./gradlew"
+#    → Lösung: chmod +x ./gradlew
+#    → Oder: Git LFS Attributes setzen
+#
+# 4. "Tests were compiled with Java 17 but running with Java 11"
+#    → Lösung: Matrix java-version checken
+#    → Lösung: pom.xml compiler source/target setzen
+#
+# 5. "No tests were executed!"
+#    → Lösung: maven-surefire-plugin hinzufügen
+#    → Lösung: Test-Dateien müssen *Test.java heißen
+#
+# 6. Maven Download dauert ewig
+#    → Lösung: cache: 'maven' aktivieren!
+#    → Erste Ausführung: 2-3 Min
+#    → Mit Cache: 10-20 Sek
+
+# PERFORMANCE-VERGLEICH:
+#
+# OHNE Cache (Maven):
+# ├─ Setup Java:              10s
+# ├─ Download Dependencies:  120s ← LANGSAM
+# ├─ Compile:                 15s
+# ├─ Tests:                   20s
+# └─ Total:                  165s
+#
+# MIT Cache (Maven):
+# ├─ Setup Java:              10s
+# ├─ Restore Cache:            5s
+# ├─ Download New Deps:       10s ← Nur neue
+# ├─ Compile:                 15s
+# ├─ Tests:                   20s
+# └─ Total:                   60s
+#
+# Ersparnis: 63% schneller! 🚀
+
+# MAVEN LIFECYCLE:
+#
+# validate → compile → test → package → verify → install → deploy
+#            ↑         ↑      ↑
+#            |         |      └─ Tests laufen hier
+#            |         └─ JAR wird erstellt
+#            └─ .class Dateien erstellt
+
+# GRADLE TASKS:
+#
+# compileJava → classes → test → jar → build
+#               ↑         ↑      ↑
+#               |         |      └─ JAR erstellt
+#               |         └─ Tests laufen
+#               └─ Kompiliert
+
+# DEMO-TIPPS:
+#
+# 1. Zeige pom.xml oder build.gradle
+#    - Erkläre Dependencies
+#    - Erkläre Plugins
+#    - Zeige Java Version
+#
+# 2. Zeige Maven/Gradle Commands lokal
+#    mvn clean package
+#    ./gradlew build
+#
+# 3. Zeige JAR im target/ oder build/libs/
+#    ls -lh target/*.jar
+#    java -jar target/app-1.0.0.jar
+#
+# 4. Zeige Caching-Effekt
+#    - Erste Ausführung: Lange
+#    - Zweite Ausführung: Schnell
+#
+# 5. Zeige Matrix mit mehreren Java-Versionen
+#    - 3 parallele Jobs
+#    - Verschiedene Java-Versionen
+
+# TROUBLESHOOTING LIVE DEMO:
+#
+# Problem: pom.xml nicht gefunden
+# → Lösung: Repository Root checken
+# → mvn -f path/to/pom.xml package
+#
+# Problem: Tests schlagen fehl
+# → Lösung: Mit -DskipTests bauen
+# → Tests separat fixen
+#
+# Problem: Gradle Wrapper fehlt
+# → Lösung: gradle wrapper generieren
+# → Oder: gradle statt ./gradlew
+
+# VERGLEICH: MAVEN VS GRADLE
+#
+# Maven:
+# ✅ Einfachere Syntax (XML)
+# ✅ Weit verbreitet
+# ✅ Große Community
+# ❌ Verbose
+# ❌ Weniger flexibel
+#
+# Gradle:
+# ✅ Moderne Syntax (DSL)
+# ✅ Schneller (Incremental Builds)
+# ✅ Flexibler
+# ❌ Steilere Lernkurve
+# ❌ Größere Builds
+
+# BESTE PRACTICES:
+#
+# 1. Cache aktivieren (cache: 'maven')
+# 2. -DskipTests nur für Build, Tests separat
+# 3. Test Reports als Artifacts hochladen
+# 4. Matrix für mehrere Java-Versionen
+# 5. LTS Versionen nutzen (11, 17, 21)

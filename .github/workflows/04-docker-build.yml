@@ -1,0 +1,210 @@
+# Demo 4: Docker Build & Push Workflow
+# Datei: .github/workflows/docker-build.yml
+
+name: Docker Build and Push
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+
+jobs:
+  # Job 1: Einfacher Docker Build
+  docker-build-simple:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          docker build -t myapp:latest .
+          docker build -t myapp:${{ github.sha }} .
+
+      - name: Test Docker Image
+        run: |
+          # Container starten
+          docker run -d -p 3000:3000 --name test-container myapp:latest
+
+          # Warten bis Container bereit
+          sleep 5
+
+          # Health Check
+          curl http://localhost:3000 || exit 1
+
+          # Container stoppen
+          docker stop test-container
+          docker rm test-container
+
+  # Job 2: Docker Build & Push zu GitHub Container Registry
+  docker-build-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}:buildcache,mode=max
+
+  # Job 3: Multi-Platform Build (ARM + x86)
+  docker-multiplatform:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Multi-Platform
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/${{ github.repository }}:multiarch
+
+# BEISPIEL DOCKERFILE (Multi-Stage):
+# ────────────────────────────────────────
+# # Stage 1: Builder
+# FROM node:20-alpine AS builder
+#
+# WORKDIR /app
+# COPY package*.json ./
+# RUN npm ci --only=production
+#
+# COPY . .
+# RUN npm run build
+#
+# # Stage 2: Production
+# FROM node:20-alpine
+#
+# WORKDIR /app
+# COPY --from=builder /app/dist ./dist
+# COPY --from=builder /app/node_modules ./node_modules
+# COPY package.json ./
+#
+# EXPOSE 3000
+# CMD ["node", "dist/index.js"]
+
+# ERKLÄRUNGEN FÜR DOZENTEN:
+#
+# 1. Warum Alpine Images?
+#    - node:20 = ~900 MB
+#    - node:20-alpine = ~40 MB
+#    - 95% kleiner = viel schneller!
+#
+# 2. Multi-Stage Builds:
+#    - Builder: Kompiliert Code
+#    - Production: Nur das Nötigste
+#    - Finale Image ist minimal
+#
+# 3. Docker Layer Caching:
+#    - Erst package.json kopieren
+#    - Dann npm install
+#    - Zum Schluss Code kopieren
+#    - Ändert sich Code → nur letzter Layer neu
+#
+# 4. GitHub Container Registry (GHCR):
+#    - Kostenlos für public Repos
+#    - Integriert mit GitHub
+#    - GITHUB_TOKEN automatisch verfügbar
+#
+# 5. Permissions:
+#    - contents: read = Code lesen
+#    - packages: write = Images pushen
+#    - Wichtig für GHCR!
+#
+# HÄUFIGE FEHLER:
+#
+# 1. "permission denied while trying to connect to Docker daemon"
+#    → Lösung: In GitHub Actions nicht nötig (Docker vorinstalliert)
+#
+# 2. "denied: permission_denied"
+#    → Lösung: permissions in Job hinzufügen
+#    → Oder: Repo Settings → Actions → Permissions
+#
+# 3. Docker Build dauert 10+ Minuten
+#    → Lösung: Alpine Images nutzen
+#    → Lösung: Multi-Stage Builds
+#    → Lösung: Layer Caching aktivieren
+#
+# 4. "manifest unknown"
+#    → Lösung: Registry-Login prüfen
+#    → Lösung: Image-Namen korrekt (ghcr.io/user/repo)
+#
+# 5. "no space left on device"
+#    → Lösung: Docker cleanup zwischen Steps
+#    → docker system prune -f
+
+# DOCKER BUILD OPTIMIERUNGEN:
+#
+# ❌ Langsam (8 Minuten):
+# FROM node:20
+# COPY . .
+# RUN npm install
+#
+# ✅ Schnell (1 Minute):
+# FROM node:20-alpine
+# COPY package*.json ./
+# RUN npm ci --only=production
+# COPY . .
+
+# DEMO-TIPPS:
+#
+# 1. Zeige Bildgrößen:
+#    docker images
+#    → node:20 = 900 MB
+#    → node:20-alpine = 40 MB
+#
+# 2. Zeige Layer-Caching:
+#    - Ändere nur Code
+#    - Rebuild ist schnell (nur Code-Layer neu)
+#
+# 3. Zeige GHCR im Browser:
+#    github.com/USERNAME/REPO/pkgs/container/REPO

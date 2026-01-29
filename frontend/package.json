@@ -1,0 +1,18 @@
+{
+  "name": "frontend-demo",
+  "version": "1.0.0",
+  "description": "GitHub Actions Demo - Frontend",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js",
+    "build": "echo 'Frontend build complete ✓'",
+    "lint": "echo 'Linting complete ✓'"
+  },
+  "keywords": ["github-actions", "demo"],
+  "author": "CloudHelden",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
