@@ -1,67 +1,40 @@
-# Demo 1: Node.js Build Workflow
-# Datei: .github/workflows/nodejs-build.yml
-
-name: Node.js Build Pipeline
+name: Node.js CI
 
 on:
   push:
-    branches: [main, develop]
-  pull_request:
     branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./frontend
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Schritt 1: Code auschecken
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Schritt 2: Node.js installieren
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # Schritt 3: Dependencies installieren
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
-      # Schritt 4: Linter ausführen
-      - name: Run Linter
-        run: npm run lint
-
-      # Schritt 5: Tests ausführen
       - name: Run Tests
         run: npm test
 
-      # Schritt 6: Build erstellen
       - name: Build Application
         run: npm run build
 
-      # Schritt 7: Build-Artefakte hochladen
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist-files
-          path: dist/
+          name: frontend-build
+          path: frontend/
           retention-days: 7
-
-# ERKLÄRUNGEN FÜR DOZENTEN:
-#
-# npm ci vs npm install:
-# - npm ci ist deterministisch (nutzt package-lock.json)
-# - npm ci ist schneller (keine Versionskonflikte)
-# - npm ci löscht node_modules vor Installation
-# - IMMER npm ci in CI/CD verwenden!
-#
-# Häufige Fehler:
-# 1. "npm ERR! Missing script: build"
-#    → Lösung: Script in package.json definieren
-#
-# 2. "npm ERR! package-lock.json not found"
-#    → Lösung: npm install lokal ausführen und committen
-#
-# 3. "npm ERR! ENOENT: no such file or directory"
-#    → Lösung: Checkout Step fehlt
