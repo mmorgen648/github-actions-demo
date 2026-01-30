@@ -21,4 +21,5 @@ jobs:
         run: echo "wert=$MEINE_VARIABLE" >> $GITHUB_OUTPUT
 
       - name: Output anzeigen
-        run: echo "Output: ${{ steps.output_step.outputs.wert }}"
+        run: |
+          echo "Output: ${{ steps.output_step.outputs.wert }}"
