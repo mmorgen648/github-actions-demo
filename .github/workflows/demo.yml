@@ -5,6 +5,7 @@ on: push
 env:
   MEINE_VARIABLE: Testwert
   REPO_VARIABLE: ${{ vars.REPO_VARIABLE }}
+  MEIN_SECRET: ${{ secrets.MEIN_SECRET }}
 
 jobs:
   demo:
@@ -14,6 +15,7 @@ jobs:
         run: |
           echo $MEINE_VARIABLE
           echo $REPO_VARIABLE
+          echo $MEIN_SECRET
 
 
       - name: Variable als Output setzen
