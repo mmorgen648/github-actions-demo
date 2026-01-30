@@ -4,13 +4,17 @@ on: push
 
 env:
   MEINE_VARIABLE: Testwert
+  REPO_VARIABLE: ${{ vars.REPO_VARIABLE }}
 
 jobs:
   demo:
     runs-on: ubuntu-latest
     steps:
-      - name: Variable ausgeben
-        run: echo $MEINE_VARIABLE
+      - name: Variablen ausgeben
+        run: |
+          echo $MEINE_VARIABLE
+          echo $REPO_VARIABLE
+
 
       - name: Variable als Output setzen
         id: set_output
