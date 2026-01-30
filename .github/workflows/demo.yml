@@ -1,25 +1,22 @@
-name: Demo Workflow
+name: Demo
 
-on:
-  push:
-    branches:
-      - main
+on: push
 
 env:
-  MEINE_VARIABLE: "Testwert"
+  MEINE_VARIABLE: Testwert
 
 jobs:
   demo:
     runs-on: ubuntu-latest
-
     steps:
       - name: Variable ausgeben
-        run: echo "Variable: $MEINE_VARIABLE"
+        run: echo $MEINE_VARIABLE
 
       - name: Variable als Output setzen
-        id: output_step
-        run: echo "wert=$MEINE_VARIABLE" >> $GITHUB_OUTPUT
+        id: set_output
+        run: |
+          echo "wert=$MEINE_VARIABLE" >> $GITHUB_OUTPUT
 
       - name: Output anzeigen
         run: |
-          echo "Output: ${{ steps.output_step.outputs.wert }}"
+          echo "${{ steps.set_output.outputs.wert }}"
